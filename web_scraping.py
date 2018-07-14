@@ -12,6 +12,7 @@ from user_agent import generate_user_agent
 import math
 import numpy as np
 import pandas as pd
+import csv
 
 # class definition for news 
 class News:
@@ -35,7 +36,11 @@ class News:
     def display_highlights(self):
         cols = ["Time", "Headline", "Link"]
         rows = ["0", "1", "2", "3", "4"]
-        print(pd.DataFrame(self.highlights.T, columns=cols, index=rows))
+        df = pd.DataFrame(self.highlights.T, columns=cols, index=rows)
+        print(df)
+        df.to_csv('news.csv')
+
+
     
     # method to scrape web to get CSPAN highlights 
     def scrape_highlights(self):
@@ -122,10 +127,10 @@ class News:
                         i+=1
 
                     '''
-                    print("\nlinks")
+                    print("\nlinks:")
                     print("\n".join(links))
 
-                    print("\ntext")
+                    print("\ntext:")
                     print("\n".join(text))
 
                     print("\ntimes:")
@@ -145,7 +150,7 @@ class News:
 
 def main():
 
-    proxies = [{'http' : '109.111.83.67:53281',  'https': '81.217.94.83:8080'}, 
+    proxies = [{'http' : '109.111.83.67:53281',  'https': '185.252.40.159:53281'}, 
         {'http' : '95.143.108.195:41258',  'https': '80.97.64.58:8080'}, 
         {'http' : '168.232.197.194:6666',  'https': '212.47.252.91:8118'}, 
         {'http' : '190.186.59.22:52335',  'https': '61.247.189.22:8080'}, 
@@ -178,5 +183,11 @@ def main():
     news_0 = News(proxies[index])
     news_0.scrape_highlights()
     news_0.display_highlights()
+
+    '''
+    with open('news.csv', 'w', newline='') as file:
+        writer = csv.writer(file, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(news_0.get_highlights().T)
+    '''
 
 main()
