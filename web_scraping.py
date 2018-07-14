@@ -10,6 +10,8 @@ from bs4 import BeautifulSoup
 import time
 from user_agent import generate_user_agent
 import math
+import numpy as np
+import pandas as pd
 
 # class definition for news 
 class News:
@@ -22,16 +24,18 @@ class News:
         
         
     # getter method to return highlights      
-    def get_news(self):
+    def get_highlights(self):
         return self.highlights
 
     # setters to modify highlights
-    def set_news(self, s):
+    def set_highlights(self, s):
         self.highlights = s
 
     # display highlights
-    def display_news(self):
-        print(self.highlights)
+    def display_highlights(self):
+        cols = ["Time", "Headline", "Link"]
+        rows = ["0", "1", "2", "3", "4"]
+        print(pd.DataFrame(self.highlights.T, columns=cols, index=rows))
     
     # method to scrape web to get CSPAN highlights 
     def scrape_highlights(self):
@@ -84,37 +88,53 @@ class News:
                 if i == url[0]:
 
                     links = []
+                    text = []
+                    times = []
 
                     # html_section = (html.find_all('ul', class_='schedule')[0].getText())
-                    #print(html_section)
+                    # print(html_section)
                     
-                    html_list_items = (html.find_all('span', class_='time highlights'))
+                    # html_list_items = (html.find_all('span', class_='time highlights'))
                     
 
-                    text = html_section.split("\n")
-                    print(text)
+                    # text = html_section.split("\n\n")
+                    # print(text)
 
+                    html_section = html.find_all('span', class_='time highlights')
 
-                    for h in html_list_items:
+                    i = 0
+
+                    for h in html_section:
+
+                        # get links
                         a = h.find('a').attrs['href']
-                        links.append(a)
+                        links.append(a[2:])
 
-                        b = h.find()
+                        # get titles
+                        b = h.find('span').getText()
+                        text.append(b)
 
-                    print("links")
-                    print(links)
+                        # get times
+                        c = html_section[i].getText()
+                        temp_times, x = c.split(" EDT")
+                        times.append(temp_times)
 
-                    # temp_highlights = (html_section.find_all('li')[0].getText())
-                    # print(temp_highlights)
-                    #links_0 = (temp_highlights.find_all('a'))
-                    #temp_highlights  = temp_highlights.split("\n")
+                        i+=1
 
-                    #print("second links")
-                    #print(links_0)
+                    '''
+                    print("\nlinks")
+                    print("\n".join(links))
 
-                    #print("temp_highlights")
-                    #print(temp_highlights)
-                    # print(self.get_news())
+                    print("\ntext")
+                    print("\n".join(text))
+
+                    print("\ntimes:")
+                    print("\n".join(times))
+                    '''
+
+
+                    highlights = np.array([times, text, links])
+                    self.set_highlights(highlights)
                             
               
                 #elif i == url[1]:
@@ -125,7 +145,7 @@ class News:
 
 def main():
 
-    proxies = [{'http' : '109.111.83.67:53281',  'https': '94.231.174.140:22341'}, 
+    proxies = [{'http' : '109.111.83.67:53281',  'https': '81.217.94.83:8080'}, 
         {'http' : '95.143.108.195:41258',  'https': '80.97.64.58:8080'}, 
         {'http' : '168.232.197.194:6666',  'https': '212.47.252.91:8118'}, 
         {'http' : '190.186.59.22:52335',  'https': '61.247.189.22:8080'}, 
@@ -157,6 +177,6 @@ def main():
 
     news_0 = News(proxies[index])
     news_0.scrape_highlights()
-    news_0.display_news()
+    news_0.display_highlights()
 
 main()
